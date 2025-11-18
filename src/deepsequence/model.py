@@ -13,6 +13,7 @@ from .seasonal_component import SeasonalComponent
 from .regressor_component import RegressorComponent
 from .intermittent_handler import IntermittentHandler, apply_intermittent_mask
 from .tabnet_encoder import TabNetEncoder
+from .unit_norm import UnitNorm
 from .config import DEFAULT_LEARNING_RATE, TRAINING_PARAMS
 
 
@@ -60,6 +61,9 @@ class DeepSequenceModel:
             )
             seasonal_output = self.seasonal_tabnet(seasonal_output)
             
+            # Apply unit normalization
+            seasonal_output = UnitNorm(name='seasonal_unit_norm')(seasonal_output)
+            
             # Final projection to forecast dimension
             seasonal_output = layers.Dense(1, activation='linear',
                                           name='seasonal_tabnet_output')(seasonal_output)
@@ -74,6 +78,9 @@ class DeepSequenceModel:
                 name='regressor_tabnet'
             )
             regressor_output = self.regressor_tabnet(regressor_output)
+            
+            # Apply unit normalization
+            regressor_output = UnitNorm(name='regressor_unit_norm')(regressor_output)
             
             # Final projection to forecast dimension
             regressor_output = layers.Dense(1, activation='linear',
@@ -116,7 +123,7 @@ class DeepSequenceModel:
                 seasonal_for_intermittent, regressor_for_intermittent
             ])
             
-            # Build probability prediction network
+            # Build probability prediction network with unit norm
             prob_hidden = intermittent_input
             for i in range(intermittent_config.get('hidden_layers', 2)):
                 prob_hidden = layers.Dense(
@@ -126,6 +133,10 @@ class DeepSequenceModel:
                         intermittent_config.get('l1_reg', 0.01)
                     ),
                     name=f'intermittent_hidden_{i}'
+                )(prob_hidden)
+                # Apply unit normalization after activation
+                prob_hidden = UnitNorm(
+                    name=f'intermittent_unit_norm_{i}'
                 )(prob_hidden)
                 prob_hidden = layers.Dropout(
                     intermittent_config.get('dropout', 0.2),

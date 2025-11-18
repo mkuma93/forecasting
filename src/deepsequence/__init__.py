@@ -15,6 +15,7 @@ from .seasonal_component import SeasonalComponent
 from .regressor_component import RegressorComponent
 from .intermittent_handler import IntermittentHandler, apply_intermittent_mask
 from .tabnet_encoder import TabNetEncoder, create_tabnet_encoder
+from .unit_norm import UnitNorm, UnitNormDense, apply_unit_norm
 from .model import DeepSequenceModel
 from .utils import create_time_features, prepare_data
 
@@ -25,6 +26,9 @@ __all__ = [
     'apply_intermittent_mask',
     'TabNetEncoder',
     'create_tabnet_encoder',
+    'UnitNorm',
+    'UnitNormDense',
+    'apply_unit_norm',
     'DeepSequenceModel',
     'create_time_features',
     'prepare_data'

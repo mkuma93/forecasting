@@ -22,6 +22,7 @@ from tensorflow import keras
 from tensorflow.keras import layers, Model
 from tensorflow.keras.regularizers import l1, l2
 from typing import Optional, Tuple
+from .unit_norm import UnitNorm
 
 
 class TabNetEncoder(layers.Layer):
@@ -191,8 +192,11 @@ class TabNetEncoder(layers.Layer):
             feature_part = hidden[:, :self.feature_dim]
             output_part = hidden[:, self.feature_dim:]
             
+            # Apply unit normalization to output part
+            output_part_norm = UnitNorm(name=f"{self.name}_step_{step}_unit_norm")(output_part)
+            
             # Aggregate output
-            aggregated_output = aggregated_output + output_part
+            aggregated_output = aggregated_output + output_part_norm
             
             # Add sparsity loss (entropy of attention weights)
             if training and self.sparsity_coefficient > 0:

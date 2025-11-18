@@ -1,4 +1,4 @@
-# Jubilant - SKU Level Forecasting
+# DeepFuture Net - SKU Level Forecasting
 
 A machine learning project for forecasting at SKU (Stock Keeping Unit) level using various techniques including LightGBM models and deep learning approaches.
 
@@ -23,23 +23,28 @@ This custom architecture was developed to handle the unique challenges of retail
 ## Project Structure
 
 ```
-jubilant/
-├── Data.csv                          # Original dataset
-├── cleaned_data.csv                  # Cleaned dataset
-├── cleaned_data_week.csv             # Weekly aggregated data
-├── stock_data_week.csv               # Stock data at weekly level
+forecasting/
+├── src/deepfuture/              # Core DeepFuture Net package
+│   ├── __init__.py
+│   ├── model.py                 # Main model class
+│   ├── seasonal_component.py   # Seasonal decomposition
+│   ├── regressor_component.py  # Regression component
+│   ├── utils.py                 # Utility functions
+│   ├── activations.py          # Custom activations
+│   └── config.py               # Configuration
 │
-├── Notebooks/
-│   ├── EDAjubilant.ipynb            # Exploratory Data Analysis
-│   ├── lgbcluster.ipynb             # LightGBM with clustering
-│   ├── DeepFuture_v2.ipynb          # Deep learning forecasting
-│   ├── naive_shift_7.ipynb          # Baseline naive model
-│   └── ...                          # Other experimental notebooks
+├── notebooks/
+│   └── DeepFuture_Demo.ipynb   # End-to-end demo
 │
-└── Outputs/
-    ├── final_forecast.csv            # Final forecast results
-    ├── lgb_clusterdistanceforecast.csv
-    └── saved_model.pb                # Saved model artifacts
+├── scripts/
+│   └── fix_notebooks.py        # Notebook utility scripts
+│
+├── README.md
+├── ARCHITECTURE.md             # Technical architecture docs
+├── PERFORMANCE_COMPARISON.md   # Model benchmarks
+├── TEST_REPORT.md             # Validation report
+├── LICENSE                    # MIT License
+└── requirements.txt           # Dependencies
 ```
 
 ## Requirements
@@ -60,8 +65,8 @@ jupyter
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/jubilant.git
-cd jubilant
+git clone https://github.com/mkuma93/forecasting.git
+cd forecasting
 ```
 
 2. Create a virtual environment:
@@ -77,27 +82,46 @@ pip install -r requirements.txt
 
 ## Usage
 
-### 1. Data Preparation
-Run the data cleaning and preparation notebooks:
+### Quick Start with Demo Notebook
+
 ```bash
-jupyter notebook "jubilant/weekly data final preparation.ipynb"
+jupyter notebook notebooks/DeepFuture_Demo.ipynb
 ```
 
-### 2. Exploratory Data Analysis
-```bash
-jupyter notebook "jubilant/EDAjubilant.ipynb"
-```
+### Using DeepFuture Net in Your Code
 
-### 3. Model Training
-Run the respective model notebooks:
-- **LightGBM Cluster Model**: `lgbweekwithcluster_v1.ipynb`
-- **Deep Learning Model**: `DeepFuture_v2.ipynb`
-- **Baseline Model**: `naive_shift_7.ipynb`
+```python
+import sys
+sys.path.insert(0, 'src')
+from deepfuture import DeepFutureModel, SeasonalComponent, RegressorComponent
 
-### 4. Forecast Selection
-Review and compare forecasts:
-```bash
-jupyter notebook "jubilant/Forecast selection and preparation.ipynb"
+# Prepare your time series data
+# ts: DataFrame with columns ['ds', 'id_cat', 'target_variable']
+# exog: DataFrame with exogenous variables
+
+# Build seasonal component
+seasonal = SeasonalComponent(
+    data=ts, target=['target'], id_var='id_cat',
+    horizon=8, weekly=True, monthly=True, yearly=True
+)
+seasonal.seasonal_feature()
+seasonal.seasonal_model(hidden=2, hidden_unit=32)
+
+# Build regressor component
+regressor = RegressorComponent(
+    ts=ts, exog=exog, target=['target'], id_var='id_cat',
+    categorical_var=['cluster'], context_variable=['price', 'lag1']
+)
+regressor.reg_model(id_input=seasonal.s_model.input[-1])
+
+# Combine and train
+model = DeepFutureModel(mode='additive')
+model.build(seasonal, regressor)
+model.compile(loss='mape', learning_rate=0.001)
+history = model.fit(train_input, train_target, epochs=50)
+
+# Predict
+predictions = model.predict(test_input)
 ```
 
 ## Models
@@ -150,12 +174,13 @@ An **ensemble approach** combining all three models achieves the best overall pe
 
 ## Data
 
-**Note**: Data files are not included in this repository due to size constraints. 
+**Note**: Data files are not included in this repository. 
 
-To use this project:
-1. Place your data file as `jubilant/Data.csv`
-2. Run the data preparation notebooks
-3. Or contact the project maintainer for access to sample data
+To use this project with your own data:
+1. Prepare your time series data with columns: `ds` (date), `StockCode` (SKU ID), `Quantity` (target)
+2. Add exogenous variables (optional): price, clusters, holidays, etc.
+3. Follow the demo notebook for complete workflow
+4. See `ARCHITECTURE.md` for detailed data requirements
 
 ## Contributing
 
@@ -163,28 +188,28 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-[Add your license here]
+MIT License - See [LICENSE](LICENSE) file for details
 
 ## Contact
 
-[Your Name/Email]
+Mritunjay Kumar - [GitHub](https://github.com/mkuma93)
 
 ## Citation
 
 If you use DeepFuture Net or find this work helpful, please cite:
 
 ```
-@misc{jubilant_sku_forecasting,
+@misc{deepfuture_net,
   author = {Mritunjay Kumar},
   title = {DeepFuture Net: A Prophet-Inspired Deep Learning Architecture for SKU-Level Forecasting},
-  year = {2021},
+  year = {2025},
   publisher = {GitHub},
-  url = {https://github.com/yourusername/jubilant}
+  url = {https://github.com/mkuma93/forecasting}
 }
 ```
 
 ## Acknowledgments
 
 - **DeepFuture Net**: Original architecture designed by Mritunjay Kumar, inspired by Facebook's Prophet
-- Case study based on SKU level forecasting challenge
-- Utilizes retail transaction datasets
+- Built for retail SKU-level forecasting with intermittent demand patterns
+- Combines deep learning with seasonal decomposition methodology

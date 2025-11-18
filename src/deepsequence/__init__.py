@@ -13,12 +13,15 @@ __author__ = "Mritunjay Kumar"
 
 from .seasonal_component import SeasonalComponent
 from .regressor_component import RegressorComponent
+from .intermittent_handler import IntermittentHandler, apply_intermittent_mask
 from .model import DeepSequenceModel
 from .utils import create_time_features, prepare_data
 
 __all__ = [
     'SeasonalComponent',
     'RegressorComponent',
+    'IntermittentHandler',
+    'apply_intermittent_mask',
     'DeepSequenceModel',
     'create_time_features',
     'prepare_data'

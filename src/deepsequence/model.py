@@ -11,6 +11,7 @@ import numpy as np
 
 from .seasonal_component import SeasonalComponent
 from .regressor_component import RegressorComponent
+from .intermittent_handler import IntermittentHandler, apply_intermittent_mask
 from .config import DEFAULT_LEARNING_RATE, TRAINING_PARAMS
 
 
@@ -20,13 +21,16 @@ class DeepSequenceModel:
     regression components.
     """
 
-    def __init__(self, mode: str = 'additive'):
+    def __init__(self, mode: str = 'additive', use_intermittent: bool = False):
         self.mode = mode
+        self.use_intermittent = use_intermittent
         self.seasonal_model = None
         self.regressor_model = None
+        self.intermittent_handler = None
         self.full_model = None
 
-    def build(self, seasonal_component: SeasonalComponent, regressor_component: RegressorComponent):
+    def build(self, seasonal_component: SeasonalComponent, regressor_component: RegressorComponent,
+              intermittent_config: dict = None):
         self.seasonal_model = seasonal_component.s_model
         self.regressor_model = regressor_component.combined_reg_model
 
@@ -38,6 +42,23 @@ class DeepSequenceModel:
             combined_output = layers.Multiply(name='multiplicative_forecast')([
                 self.seasonal_model.output, self.regressor_model.output
             ])
+
+        # Apply intermittent handler if enabled
+        if self.use_intermittent:
+            if intermittent_config is None:
+                intermittent_config = {}
+            
+            # Create intermittent handler
+            self.intermittent_handler = IntermittentHandler(**intermittent_config)
+            
+            # Build handler model using same inputs
+            probability = self.intermittent_handler.build_model(
+                self.seasonal_model.input,
+                self.regressor_model.input
+            )
+            
+            # Apply mask: multiply forecast with probability
+            combined_output = apply_intermittent_mask(combined_output, probability.output)
 
         self.full_model = Model(
             inputs=[self.seasonal_model.input, self.regressor_model.input],

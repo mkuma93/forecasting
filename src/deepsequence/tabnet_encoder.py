@@ -97,6 +97,13 @@ class TabNetEncoder(layers.Layer):
             name=f"{self.name}_bn_input"
         )
         
+        # Feature transformation to map back to input dimension
+        self.feature_transform = layers.Dense(
+            input_dim,
+            use_bias=False,
+            name=f"{self.name}_feature_transform"
+        )
+        
         # Shared GLU block (used across all steps)
         self.shared_block = SharedGLUBlock(
             n_layers=self.n_shared,
@@ -183,7 +190,8 @@ class TabNetEncoder(layers.Layer):
             for step_layer in self.step_layers[step]:
                 hidden = step_layer(hidden, training=training)
             
-            # Split output part (feature_part not used in aggregation)
+            # Split into feature and output parts
+            feature_part = hidden[:, :self.feature_dim]
             output_part = hidden[:, self.feature_dim:]
             
             # Apply unit normalization to output part
@@ -191,8 +199,13 @@ class TabNetEncoder(layers.Layer):
                 name=f"{self.name}_step_{step}_unit_norm"
             )(output_part)
             
-            # Aggregate output
+            # Aggregate output (decision part)
             aggregated_output = aggregated_output + output_part_norm
+            
+            # Transform feature_part back to input dimension for next step
+            features = self.feature_transform(
+                tf.nn.relu(feature_part)
+            )
             
             # Add sparsity loss (entropy of attention weights)
             if training and self.sparsity_coefficient > 0:

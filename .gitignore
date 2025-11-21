@@ -14,6 +14,9 @@ variables/
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
 
+# Old/incomplete demo notebooks
+notebooks/DeepSequence_Demo.ipynb
+
 # Python
 __pycache__/
 *.py[cod]

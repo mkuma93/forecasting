@@ -16,6 +16,7 @@ variables/
 
 # Old/incomplete demo notebooks
 notebooks/DeepSequence_Demo.ipynb
+notebooks/DeepSequence_Quick_Demo.ipynb
 
 # Python
 __pycache__/

@@ -385,76 +385,89 @@ class DeepSequencePWL:
         )(seasonal_out)
         
         # ====================================================================
-        # HOLIDAY COMPONENT (PWL + Lattice)
+        # HOLIDAY COMPONENT (PWL + Lattice) - Optional
         # ====================================================================
         
-        # Extract holiday_distance feature
-        holiday_distance_input = Lambda(
-            lambda x: x[:, holiday_feature_index:holiday_feature_index+1],
-            name='holiday_distance_extract'
-        )(main_input)
-        
-        # PWL calibration: adapt range based on data granularity
-        if self.data_frequency == 'daily':
-            keypoint_range = 365  # ±1 year
-            num_keypoints = 37  # ~10 days per keypoint
-        elif self.data_frequency == 'weekly':
-            keypoint_range = 364  # ±52 weeks
-            num_keypoints = 27  # ~2 weeks per keypoint
-        elif self.data_frequency == 'monthly':
-            keypoint_range = 365  # ±12 months
-            num_keypoints = 13  # 1 month per keypoint
-        elif self.data_frequency == 'quarterly':
-            keypoint_range = 365  # ±4 quarters
-            num_keypoints = 9  # 1 quarter per keypoint
+        if holiday_feature_index is not None:
+            # Extract holiday_distance feature
+            holiday_distance_input = Lambda(
+                lambda x: x[:, holiday_feature_index:holiday_feature_index+1],
+                name='holiday_distance_extract'
+            )(main_input)
+            
+            # PWL calibration: adapt range based on data granularity
+            if self.data_frequency == 'daily':
+                keypoint_range = 365  # ±1 year
+                num_keypoints = 37  # ~10 days per keypoint
+            elif self.data_frequency == 'weekly':
+                keypoint_range = 364  # ±52 weeks
+                num_keypoints = 27  # ~2 weeks per keypoint
+            elif self.data_frequency == 'monthly':
+                keypoint_range = 365  # ±12 months
+                num_keypoints = 13  # 1 month per keypoint
+            elif self.data_frequency == 'quarterly':
+                keypoint_range = 365  # ±4 quarters
+                num_keypoints = 9  # 1 quarter per keypoint
+            else:
+                keypoint_range = 365
+                num_keypoints = 37
+            
+            # Cast to float32 explicitly for PWLCalibration compatibility
+            holiday_distance_float32 = tf.cast(holiday_distance_input, tf.float32)
+            
+            holiday_pwl = tfl.layers.PWLCalibration(
+                input_keypoints=np.linspace(-keypoint_range, keypoint_range, num_keypoints).astype(np.float32),
+                output_min=-2.0,
+                output_max=2.0,
+                monotonicity='none',  # Holidays can increase/decrease demand
+                kernel_regularizer=('hessian', 0.0, 1e-3),
+                dtype='float32',
+                name='holiday_pwl'
+            )(holiday_distance_float32)
+            
+            # Lattice layer: capture non-linear holiday effects
+            holiday_lattice = tfl.layers.Lattice(
+                lattice_sizes=[num_keypoints],
+                output_min=-2.0,
+                output_max=2.0,
+                kernel_regularizer=('torsion', 0.0, 1e-4),
+                name='holiday_lattice'
+            )(holiday_pwl)
+            
+            # Use only the holiday lattice output (no other features)
+            holiday_out = Dense(
+                self.component_hidden_units,
+                activation=self.activation_fn,
+                use_bias=False,
+                name='holiday_hidden'
+            )(holiday_lattice)
+            
+            # ID-specific holiday residual
+            id_holiday_residual = Dense(
+                self.component_hidden_units, 
+                activation='linear',
+                use_bias=False,
+                name='id_holiday_residual'
+            )(id_embedding)
         else:
-            keypoint_range = 365
-            num_keypoints = 37
+            # No holiday component - set to zero
+            holiday_out = Lambda(
+                lambda x: tf.zeros((tf.shape(x)[0], self.component_hidden_units)),
+                name='holiday_zero'
+            )(main_input)
+            id_holiday_residual = Lambda(
+                lambda x: tf.zeros((tf.shape(x)[0], self.component_hidden_units)),
+                name='id_holiday_residual_zero'
+            )(id_embedding)
         
-        # Cast to float32 explicitly for PWLCalibration compatibility
-        holiday_distance_float32 = tf.cast(holiday_distance_input, tf.float32)
-        
-        holiday_pwl = tfl.layers.PWLCalibration(
-            input_keypoints=np.linspace(-keypoint_range, keypoint_range, num_keypoints).astype(np.float32),
-            output_min=-2.0,
-            output_max=2.0,
-            monotonicity='none',  # Holidays can increase/decrease demand
-            kernel_regularizer=('hessian', 0.0, 1e-3),
-            dtype='float32',
-            name='holiday_pwl'
-        )(holiday_distance_float32)
-        
-        # Lattice layer: capture non-linear holiday effects
-        holiday_lattice = tfl.layers.Lattice(
-            lattice_sizes=[num_keypoints],
-            output_min=-2.0,
-            output_max=2.0,
-            kernel_regularizer=('torsion', 0.0, 1e-4),
-            name='holiday_lattice'
-        )(holiday_pwl)
-        
-        # Use only the holiday lattice output (no other features)
-        holiday_out = Dense(
-            self.component_hidden_units,
-            activation=self.activation_fn,
-            use_bias=False,
-            name='holiday_hidden'
-        )(holiday_lattice)
-        
-        # ID-specific holiday residual
-        id_holiday_residual = Dense(
-            self.component_hidden_units, 
-            activation='linear',
-            use_bias=False,
-            name='id_holiday_residual'
-        )(id_embedding)
+        # Complete holiday component (applies whether holiday exists or not)
         holiday_out = Add(name='holiday_id_interaction')([
             holiday_out, id_holiday_residual
         ])
         holiday_out = Dropout(self.component_dropout)(holiday_out)
         holiday_forecast = Dense(
-            1, 
-            activation='linear', 
+            1,
+            activation='linear',
             use_bias=False,
             name='holiday_forecast'
         )(holiday_out)
@@ -590,7 +603,8 @@ class DeepSequencePWL:
         )
         
         print(f"✓ Model built: {self.model.count_params():,} parameters")
-        print(f"  PWL keypoints: {num_keypoints} (range: ±{keypoint_range} {self.data_frequency})")
+        if holiday_feature_index is not None:
+            print(f"  PWL keypoints: {num_keypoints} (range: ±{keypoint_range} {self.data_frequency})")
         
         return (
             self.model, 

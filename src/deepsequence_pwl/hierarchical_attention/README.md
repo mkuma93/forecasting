@@ -100,6 +100,32 @@ model.fit(
 4. **Efficiency**: Hierarchical structure reduces parameters while increasing capacity
 5. **Robustness**: Multiple levels of attention provide redundancy
 
+## Architecture Visualization
+
+![Hierarchical Attention Architecture](../../../hierarchical_attention_architecture.png)
+
+The diagram above shows the complete 2-level hierarchical attention architecture:
+
+1. **Input Layer**: Main features (10) and SKU embeddings (8 dimensions)
+2. **Component Branches**: Four parallel branches for Trend, Seasonal, Holiday, and Regressor
+   - Trend and Holiday use PWL calibration for non-linear transformations
+   - All components use Dense layers with Mish activation
+   - Shift-and-scale applied using SKU embeddings for personalization
+3. **Level 1 - Feature Attention**: Each component gets feature-level attention (4 layers)
+4. **Level 2 - Component Attention**: Attention across all components (1 layer)
+5. **Zero Probability Network**: Two-layer Dense network for intermittent handling
+6. **Outputs**: Base forecast, final forecast, and zero probability
+
+**Key Metrics**:
+- Total Parameters: 23,225
+- Attention Layers: 5 (4 feature-level + 1 component-level)
+- Sparse Attention: Entmax15 (sparsemax) for exact zeros
+
+To regenerate the architecture diagram:
+```bash
+python visualize_hierarchical_architecture.py
+```
+
 ## Testing
 
 Run `test_hierarchical_attention.py` in the project root to verify the architecture:

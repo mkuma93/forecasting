@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deepsequence-hierarchical-attention"
+version = "1.0.0"
+description = "Hierarchical attention framework for time series forecasting"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Mritunjay Kumar", email = "mritunjay.kmr1@gmail.com"}
+]
+keywords = ["time-series", "forecasting", "deep-learning", "attention", "tabnet"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "tensorflow>=2.13.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "flake8>=6.0",
+    "jupyter>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mkuma93/deepsequence-hierarchical-attention"
+Documentation = "https://github.com/mkuma93/deepsequence-hierarchical-attention"
+Repository = "https://github.com/mkuma93/deepsequence-hierarchical-attention"
+"Bug Tracker" = "https://github.com/mkuma93/deepsequence-hierarchical-attention/issues"
+
+[tool.setuptools]
+packages = ["deepsequence_hierarchical_attention"]
+
+[tool.setuptools.package-data]
+deepsequence_hierarchical_attention = ["*.py"]

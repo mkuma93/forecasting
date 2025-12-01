@@ -1,0 +1,68 @@
+================================================================================
+EVALUATING SAVED MODELS
+================================================================================
+
+✓ Loading test data...
+  Train samples: 3,211,905
+  Validation samples: 688,987
+  Test samples: 692,312
+
+✓ Creating features...
+  Holiday features: 0
+  Total features: 12
+  Temporal: 9, Lags: 3, Holidays: 0
+  Unique SKUs: 6,099
+
+================================================================================
+LOADING MODELS
+================================================================================
+
+✓ Loading Hierarchical Attention model...
+Traceback (most recent call last):
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/ops/operation.py", line 317, in from_config
+    return cls(**config)
+           ^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/layers/core/dense.py", line 97, in __init__
+    self.activation = activations.get(activation)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/activations/__init__.py", line 128, in get
+    raise ValueError(
+ValueError: Could not interpret activation function identifier: {'value': ['4wEAAAAAAAAAAAAAAAYAAAATAAAA84AAAACXAHwAdAAAAAAAAAAAAGoCAAAAAAAAAAAAAAAAAAAA\nAAAAagUAAAAAAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAagIAAAAAAAAAAAAAAAAAAAAAAABqBwAA\nAAAAAAAAAAAAAAAAAAAAAHwAqwEAAAAAAACrAQAAAAAAAHoFAABTAKkBTikE2gJ0ZtoCbm7aBHRh\nbmjaCHNvZnRwbHVzqQHaAXhzAQAAACD6ty9Vc2Vycy9tcml0dW5qYXlrdW1hci9MaWJyYXJ5L0Ns\nb3VkU3RvcmFnZS9Hb29nbGVEcml2ZS1tcml0dW5qYXkua21yMUBnbWFpbC5jb20vTXkgRHJpdmUv\nanViaWxhbnQvZGVlcHNlcXVlbmNlX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vZGVlcHNlcXVlbmNl\nX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vY29tcG9uZW50cy5wedoIPGxhbWJkYT76NENvbXBvbmVu\ndEJ1aWxkZXIuZ2V0X2FjdGl2YXRpb25fZm4uPGxvY2Fscz4uPGxhbWJkYT77AAAAcyMAAACAAJhR\npBKnFaEVpxqhGqxCr0WpRa9OqU64MdMsPdMhPtIdPvMAAAAA\n', None, None]}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/mritunjaykumar/Library/CloudStorage/GoogleDrive-mritunjay.kmr1@gmail.com/My Drive/jubilant/deepsequence_hierarchical_attention/examples/evaluate_saved_models.py", line 126, in <module>
+    ha_model = keras.models.load_model(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/saving/saving_api.py", line 196, in load_model
+    return legacy_h5_format.load_model_from_hdf5(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/legacy/saving/legacy_h5_format.py", line 137, in load_model_from_hdf5
+    model = saving_utils.model_from_config(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/legacy/saving/saving_utils.py", line 83, in model_from_config
+    return serialization.deserialize_keras_object(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/legacy/saving/serialization.py", line 488, in deserialize_keras_object
+    deserialized_obj = cls.from_config(
+                       ^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/models/model.py", line 694, in from_config
+    return functional_from_config(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/models/functional.py", line 558, in functional_from_config
+    process_layer(layer_data)
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/models/functional.py", line 521, in process_layer
+    layer = saving_utils.model_from_config(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/legacy/saving/saving_utils.py", line 83, in model_from_config
+    return serialization.deserialize_keras_object(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/legacy/saving/serialization.py", line 497, in deserialize_keras_object
+    deserialized_obj = cls.from_config(cls_config)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mritunjaykumar/miniforge3/lib/python3.12/site-packages/keras/src/ops/operation.py", line 319, in from_config
+    raise TypeError(
+TypeError: Error when deserializing class 'Dense' using config={'name': 'seasonal_hidden', 'trainable': True, 'dtype': 'float32', 'units': 64, 'activation': {'value': ['4wEAAAAAAAAAAAAAAAYAAAATAAAA84AAAACXAHwAdAAAAAAAAAAAAGoCAAAAAAAAAAAAAAAAAAAA\nAAAAagUAAAAAAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAagIAAAAAAAAAAAAAAAAAAAAAAABqBwAA\nAAAAAAAAAAAAAAAAAAAAAHwAqwEAAAAAAACrAQAAAAAAAHoFAABTAKkBTikE2gJ0ZtoCbm7aBHRh\nbmjaCHNvZnRwbHVzqQHaAXhzAQAAACD6ty9Vc2Vycy9tcml0dW5qYXlrdW1hci9MaWJyYXJ5L0Ns\nb3VkU3RvcmFnZS9Hb29nbGVEcml2ZS1tcml0dW5qYXkua21yMUBnbWFpbC5jb20vTXkgRHJpdmUv\nanViaWxhbnQvZGVlcHNlcXVlbmNlX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vZGVlcHNlcXVlbmNl\nX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vY29tcG9uZW50cy5wedoIPGxhbWJkYT76NENvbXBvbmVu\ndEJ1aWxkZXIuZ2V0X2FjdGl2YXRpb25fZm4uPGxvY2Fscz4uPGxhbWJkYT77AAAAcyMAAACAAJhR\npBKnFaEVpxqhGqxCr0WpRa9OqU64MdMsPdMhPtIdPvMAAAAA\n', None, None]}, 'use_bias': True, 'kernel_initializer': {'module': 'keras.initializers', 'class_name': 'GlorotUniform', 'config': {'seed': None}, 'registered_name': None}, 'bias_initializer': {'module': 'keras.initializers', 'class_name': 'Zeros', 'config': {}, 'registered_name': None}, 'kernel_regularizer': {'module': 'keras.regularizers', 'class_name': 'L1L2', 'config': {'l1': 0.0001, 'l2': 0.0001}, 'registered_name': None}, 'bias_regularizer': None, 'kernel_constraint': None, 'bias_constraint': None}.
+
+Exception encountered: Could not interpret activation function identifier: {'value': ['4wEAAAAAAAAAAAAAAAYAAAATAAAA84AAAACXAHwAdAAAAAAAAAAAAGoCAAAAAAAAAAAAAAAAAAAA\nAAAAagUAAAAAAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAagIAAAAAAAAAAAAAAAAAAAAAAABqBwAA\nAAAAAAAAAAAAAAAAAAAAAHwAqwEAAAAAAACrAQAAAAAAAHoFAABTAKkBTikE2gJ0ZtoCbm7aBHRh\nbmjaCHNvZnRwbHVzqQHaAXhzAQAAACD6ty9Vc2Vycy9tcml0dW5qYXlrdW1hci9MaWJyYXJ5L0Ns\nb3VkU3RvcmFnZS9Hb29nbGVEcml2ZS1tcml0dW5qYXkua21yMUBnbWFpbC5jb20vTXkgRHJpdmUv\nanViaWxhbnQvZGVlcHNlcXVlbmNlX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vZGVlcHNlcXVlbmNl\nX2hpZXJhcmNoaWNhbF9hdHRlbnRpb24vY29tcG9uZW50cy5wedoIPGxhbWJkYT76NENvbXBvbmVu\ndEJ1aWxkZXIuZ2V0X2FjdGl2YXRpb25fZm4uPGxvY2Fscz4uPGxhbWJkYT77AAAAcyMAAACAAJhR\npBKnFaEVpxqhGqxCr0WpRa9OqU64MdMsPdMhPtIdPvMAAAAA\n', None, None]}

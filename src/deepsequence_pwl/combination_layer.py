@@ -9,7 +9,7 @@ Supports various mathematical combinations of seasonal, trend, and impact compon
 """
 
 import tensorflow as tf
-from tf_keras import layers
+from tensorflow.keras import layers
 from typing import List, Optional, Callable
 
 

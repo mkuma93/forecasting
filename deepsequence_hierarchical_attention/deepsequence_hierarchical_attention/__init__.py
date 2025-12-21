@@ -1,45 +1,28 @@
 """
 Hierarchical Attention Architecture for Intermittent Demand Forecasting.
 
-This module implements a sophisticated three-level attention mechanism:
-
-Level 1 (PWL-level): Attention on piecewise linear calibration outputs
-    - Trend: Attention on changepoint features (which time regions matter)
-    - Holiday: Attention on distance range features (which distances from holidays matter)
-
-Level 2 (Feature-level): Attention on hidden features within each component
-    - Applied to all components (trend, seasonal, holiday, regressor)
-    - Selects which hidden dimensions are important per SKU
-
-Level 3 (Component-level): Attention across all components
-    - Learns importance of trend vs seasonal vs holiday vs regressor
-    - Different SKUs can have different component importance
-
-Key Features:
-- TensorFlow-native sparsemax activation (can output exact zeros)
-- PWL calibration for non-linear transformations
-- SKU-specific attention through embeddings
-- Hierarchical sparsity for interpretability
+Two main implementations:
+1. TabNet-based Hierarchical Attention (components.py) - Full feature attention with TabNet encoder
+2. Lightweight Hierarchical Attention (components_lightweight.py) - Optimized for production
 """
 
+# Loss functions
 from .losses import composite_loss, weighted_composite_loss, mae_loss
 
+# Lightweight implementation (optimized for production)
+from .components_lightweight import build_hierarchical_model_lightweight
+
+# TabNet-based hierarchical attention (full feature attention)
 from .components import (
-    Mish,
-    SparseAttention,
-    CrossLayer,
+    DeepSequencePWLHierarchical,
+    HierarchicalAttentionIntermittentHandler,
     TrendComponentBuilder,
     SeasonalComponentBuilder,
     HolidayComponentBuilder,
-    RegressorComponentBuilder,
-    TrendComponentBuilderSimple,
-    SeasonalComponentBuilderTabNet,
-    HolidayComponentBuilderTabNet,
-    RegressorComponentBuilderTabNet,
-    HierarchicalAttentionIntermittentHandler,
-    DeepSequencePWLHierarchical
+    RegressorComponentBuilder
 )
 
+# TabNet encoder components
 from .tabnet import (
     TabNetEncoder,
     GhostBatchNormalization,
@@ -48,12 +31,7 @@ from .tabnet import (
     FeatureTransformer
 )
 
-from .autoregressive import (
-    create_lag_features,
-    AutoregressivePredictor,
-    prepare_historical_demand_buffer
-)
-
+# Model creation utilities
 from .model import (
     create_hierarchical_model,
     compile_hierarchical_model,
@@ -61,24 +39,30 @@ from .model import (
 )
 
 __all__ = [
-    'SparseAttention',
-    'CrossLayer',
+    # Loss functions
+    'composite_loss',
+    'weighted_composite_loss',
+    'mae_loss',
+    
+    # Lightweight implementation
+    'build_hierarchical_model_lightweight',
+    
+    # TabNet-based hierarchical attention
+    'DeepSequencePWLHierarchical',
+    'HierarchicalAttentionIntermittentHandler',
     'TrendComponentBuilder',
     'SeasonalComponentBuilder',
     'HolidayComponentBuilder',
     'RegressorComponentBuilder',
-    'TrendComponentBuilderSimple',
-    'SeasonalComponentBuilderTabNet',
-    'HolidayComponentBuilderTabNet',
-    'RegressorComponentBuilderTabNet',
-    'HierarchicalAttentionIntermittentHandler',
-    'DeepSequencePWLHierarchical',
+    
+    # TabNet components
     'TabNetEncoder',
     'GhostBatchNormalization',
     'GLUBlock',
     'AttentiveTransformer',
     'FeatureTransformer',
-    'Mish',
+    
+    # Model utilities
     'create_hierarchical_model',
     'compile_hierarchical_model',
     'get_training_callbacks'

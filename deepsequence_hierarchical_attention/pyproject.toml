@@ -51,6 +51,7 @@ Repository = "https://github.com/mkuma93/deepsequence-hierarchical-attention"
 
 [tool.setuptools]
 packages = ["deepsequence_hierarchical_attention"]
+include-package-data = true
 
 [tool.setuptools.package-data]
-deepsequence_hierarchical_attention = ["*.py"]
+deepsequence_hierarchical_attention = ["*.py", "*.yaml", "*.txt"]

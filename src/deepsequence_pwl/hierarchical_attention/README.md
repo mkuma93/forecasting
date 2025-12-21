@@ -4,31 +4,41 @@ This directory contains the hierarchical attention architecture for intermittent
 
 ## Architecture Overview
 
-The hierarchical attention mechanism operates at two levels:
+The hierarchical attention mechanism operates at three levels with Entmax15 sparse attention applied to each component:
 
-### Level 1: Feature-Level Attention
-Applied to component outputs to select which features matter within each component:
+### Component-Specific Attention (Applied to Each Component)
 
-- **Trend Component**: Attention on PWL-calibrated changepoint features
-  - Learns which time regions (changepoints) are important for each SKU
-  - Example: "SKU uses changepoints 1, 5, 8 for early growth phase"
+Each component has its own Entmax15 attention mechanism:
+
+- **Trend Component**: 
+  - Extracts time feature → PWL calibration (if enabled) → Dense → **Entmax15 Attention on PWL output** → Dropout
+  - Learns which calibrated time features matter for each SKU
+  - Example: "SKU uses early growth changepoints, ignores recent trends"
   
-- **Seasonal Component**: Attention on Dense layer outputs
-  - Learns which seasonal pattern features matter for each SKU
-  - Example: "SKU uses weekly and monthly patterns, ignores quarterly"
+- **Seasonal Component**: 
+  - Extracts seasonal features → Dense → **Entmax15 Attention on hidden features** → Dropout
+  - Learns which seasonal patterns matter (Fourier features, categorical date features)
+  - Example: "SKU uses weekly patterns, ignores monthly/quarterly cycles"
 
-- **Holiday Component**: Attention on PWL-calibrated distance features
-  - Learns which distances from holidays matter for each SKU
-  - Example: "SKU sensitive only 7-14 days before Christmas"
+- **Holiday Component**: 
+  - Extracts 15 holiday distance features → **15 individual PWL calibrations** (one per holiday) → Concatenate → Dense → **Entmax15 Attention on PWL output** → Dropout
+  - Learns which holidays and which distance ranges matter for each SKU
+  - Example: "SKU sensitive only to Christmas & Thanksgiving, 7-14 days before"
   
-- **Regressor Component**: Attention on Dense layer outputs
-  - Learns which regressor features are important for each SKU
-  - Example: "SKU responds to price changes but not promotions"
+- **Regressor Component**: 
+  - Extracts regressor features → Dense → **Entmax15 Attention on hidden features** → Dropout
+  - Learns which external regressors are important for each SKU
+  - Example: "SKU responds to promotions only, ignores price changes"
 
-### Level 2: Component-Level Attention
-- Attention across all components (trend/seasonal/holiday/regressor)
-- Learns the importance of each component for different SKUs
-- Example: "Trend=60%, Seasonal=30%, Holiday=10%, Regressor=0%"
+### Level 1: Feature-Level Attention (Within Intermittent Handler)
+Applied to component outputs within the zero probability network:
+- Attention on hidden features within each component's output
+- Learns which features within each component contribute to zero probability prediction
+
+### Level 2: Component-Level Attention (Within Intermittent Handler)
+- Attention across all 4 components (trend/seasonal/holiday/regressor)
+- Learns the importance of each component for intermittent demand prediction
+- Example: "For zero prediction: Trend=60%, Seasonal=30%, Holiday=10%, Regressor=0%"
 
 ## Key Features
 
@@ -104,20 +114,34 @@ model.fit(
 
 ![Hierarchical Attention Architecture](../../../hierarchical_attention_architecture.png)
 
-The diagram above shows the complete 2-level hierarchical attention architecture:
+The diagram above shows the complete hierarchical attention architecture:
 
-1. **Input Layer**: Main features (10) and SKU embeddings (8 dimensions)
-2. **Component Branches**: Four parallel branches for Trend, Seasonal, Holiday, and Regressor
-   - Trend and Holiday use PWL calibration for non-linear transformations
-   - All components use Dense layers with Mish activation
+1. **Input Layer**: Main features (30) and SKU embeddings (8 dimensions)
+   - 15 holiday distance features (days_from_NewYear, days_from_MLK, etc.)
+   - 10 Fourier seasonal features (sin/cos pairs)
+   - 4 categorical date features (day_of_week, month, etc.)
+   - 1 time feature
+
+2. **Component Branches**: Four parallel branches with component-specific Entmax15 attention
+   - **Trend**: PWL calibration on time → Dense → Entmax15 attention
+   - **Seasonal**: Dense on seasonal features → Entmax15 attention
+   - **Holiday**: 15 individual PWL calibrations (one per holiday) → Concatenate → Dense → Entmax15 attention
+   - **Regressor**: Dense on regressor features → Entmax15 attention (if available)
+   - All components use Dense layers with Mish activation and Dropout
    - Shift-and-scale applied using SKU embeddings for personalization
-3. **Level 1 - Feature Attention**: Each component gets feature-level attention (4 layers)
-4. **Level 2 - Component Attention**: Attention across all components (1 layer)
-5. **Zero Probability Network**: Two-layer Dense network for intermittent handling
-6. **Outputs**: Base forecast, final forecast, and zero probability
+
+3. **Intermittent Handler** (if enabled):
+   - **Feature-Level Attention**: Attention within each component's output (4 layers)
+   - **Component-Level Attention**: Attention across all 4 components (1 layer)
+   - **Zero Probability Network**: Multi-layer Dense network for intermittent handling
+
+4. **Outputs**: Base forecast, final forecast, and zero probability (if intermittent handling enabled)
 
 **Key Metrics**:
-- Total Parameters: 23,225
+- Total Parameters: 109,323
+- Attention Layers: 9 total (4 component-specific + 4 feature-level + 1 component-level)
+- PWL Calibrations: 15 individual calibrators for holiday distance features
+- Sparse Attention: Entmax15 (sparsemax) for exact zeros at all levels
 - Attention Layers: 5 (4 feature-level + 1 component-level)
 - Sparse Attention: Entmax15 (sparsemax) for exact zeros
 

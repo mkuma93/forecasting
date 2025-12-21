@@ -23,13 +23,32 @@ Key Features:
 """
 
 from .components import (
-    Entmax15,
+    SparseAttention,
+    CrossLayer,
     TrendComponentBuilder,
     SeasonalComponentBuilder,
     HolidayComponentBuilder,
     RegressorComponentBuilder,
+    TrendComponentBuilderSimple,
+    SeasonalComponentBuilderTabNet,
+    HolidayComponentBuilderTabNet,
+    RegressorComponentBuilderTabNet,
     HierarchicalAttentionIntermittentHandler,
     DeepSequencePWLHierarchical
+)
+
+from .tabnet import (
+    TabNetEncoder,
+    GhostBatchNormalization,
+    GLUBlock,
+    AttentiveTransformer,
+    FeatureTransformer
+)
+
+from .autoregressive import (
+    create_lag_features,
+    AutoregressivePredictor,
+    prepare_historical_demand_buffer
 )
 
 from .model import (
@@ -39,13 +58,23 @@ from .model import (
 )
 
 __all__ = [
-    'Entmax15',
+    'SparseAttention',
+    'CrossLayer',
     'TrendComponentBuilder',
     'SeasonalComponentBuilder',
     'HolidayComponentBuilder',
     'RegressorComponentBuilder',
+    'TrendComponentBuilderSimple',
+    'SeasonalComponentBuilderTabNet',
+    'HolidayComponentBuilderTabNet',
+    'RegressorComponentBuilderTabNet',
     'HierarchicalAttentionIntermittentHandler',
     'DeepSequencePWLHierarchical',
+    'TabNetEncoder',
+    'GhostBatchNormalization',
+    'GLUBlock',
+    'AttentiveTransformer',
+    'FeatureTransformer',
     'create_hierarchical_model',
     'compile_hierarchical_model',
     'get_training_callbacks'

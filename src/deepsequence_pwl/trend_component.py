@@ -7,10 +7,10 @@ Based on original DeepFuture v1/v2 implementation.
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from tf_keras.layers import (Input, Dense, Embedding, Flatten, Reshape,
+from tensorflow.keras.layers import (Input, Dense, Embedding, Flatten, Reshape,
                                     Dropout, Concatenate, BatchNormalization)
-from tf_keras.models import Model
-from tf_keras.regularizers import l1
+from tensorflow.keras.models import Model
+from tensorflow.keras.regularizers import l1
 from datetime import datetime
 from typing import List, Optional
 

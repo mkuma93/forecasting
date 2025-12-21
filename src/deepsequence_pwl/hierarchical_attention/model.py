@@ -6,10 +6,10 @@ the hierarchical attention model for intermittent demand forecasting.
 """
 
 import tensorflow as tf
-from tf_keras.models import Model
-from tf_keras.layers import Input, Embedding
-from tf_keras.optimizers import Adam
-from tf_keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Embedding
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from typing import Tuple, List, Optional, Dict
 import numpy as np
 
@@ -153,7 +153,7 @@ def compile_hierarchical_model(
         metrics={
             'base_forecast': ['mae'],
             'final_forecast': ['mae'],
-            'zero_probability': ['accuracy', 'mae']
+            'zero_probability': ['accuracy']
         }
     )
     

@@ -1,0 +1,11 @@
+{
+  "alpha": 0.05,
+  "gamma": 2.0,
+  "pos_weight": 15.0,
+  "target_recall": 0.70,
+  "min_bce_weight": 0.30,
+  "learning_rate": 0.0025,
+  "batch_size": 512,
+  "epochs": 100,
+  "patience": 15
+}

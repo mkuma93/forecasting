@@ -89,6 +89,25 @@ def sparse_amplify(x):
     return x * (1.0 / (tf.abs(x) + 1.0))
 
 
+@tf.function
+def sparse_amplify_exp(x):
+    """
+    Sparse amplify with exponential scaling: x * exp(1/(abs(x)+1))
+    
+    More aggressive than sparse_amplify for highlighting sparse signals:
+    - When x ≈ 0: exp(1/(0+1)) = exp(1) ≈ 2.718 → amplifies by ~2.7x
+    - When x is large: exp(1/(∞+1)) = exp(0) = 1 → no amplification
+    
+    Benefits for 90% sparse data:
+    - Exponentially boosts small non-zero values
+    - Maintains large values (outlier protection)
+    - Smooth and differentiable everywhere
+    
+    Note: Still underperforms Mish (better gradient flow in deep networks)
+    """
+    return x * tf.exp(1.0 / (tf.abs(x) + 1.0))
+
+
 # ============================================================================
 # LOSS FUNCTIONS
 # ============================================================================
@@ -146,9 +165,7 @@ def create_composite_loss_with_sku_weights(sku_weights_dict: Dict[int, float], a
         y_binary = tf.cast(y_true > 0, tf.float32)
         
         # Predict binary class from magnitude
-        # Clip predictions to avoid log(0) in BCE
-        y_pred_clipped = tf.clip_by_value(y_pred, 0.0, 1e6)
-        y_pred_binary = tf.nn.sigmoid(y_pred_clipped / 10.0)  # Scale down for sigmoid
+        y_pred_binary = tf.nn.sigmoid(y_pred / 10.0)  # Scale down for sigmoid
         
         # Binary cross-entropy loss (no SKU weighting for zero detection)
         bce_loss = tf.keras.losses.binary_crossentropy(y_binary, y_pred_binary)

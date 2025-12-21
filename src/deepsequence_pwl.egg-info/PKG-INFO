@@ -1,3 +1,46 @@
+Metadata-Version: 2.4
+Name: deepsequence-pwl
+Version: 1.0.0
+Summary: General-purpose time series forecasting with optional intermittent handling
+Home-page: https://github.com/mkuma93/DeepSequence
+Author: Mritunjay Kumar
+Author-email: Mritunjay Kumar <mritunjay.kmr1@gmail.com>
+License: MIT
+Project-URL: Homepage, https://github.com/mkuma93/DeepSequence
+Project-URL: Documentation, https://github.com/mkuma93/DeepSequence
+Project-URL: Repository, https://github.com/mkuma93/DeepSequence
+Project-URL: Bug Tracker, https://github.com/mkuma93/DeepSequence/issues
+Keywords: time-series,forecasting,intermittent-demand,deep-learning,tensorflow
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: tensorflow>=2.13.0
+Requires-Dist: tensorflow-lattice>=2.0.11
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: scikit-learn>=1.3.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: flake8>=6.0; extra == "dev"
+Requires-Dist: jupyter>=1.0; extra == "dev"
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
 # DeepSequence: Hierarchical Attention Time Series Forecasting
 
 A production-ready deep learning framework for time series forecasting with **hierarchical sparse attention**, **TabNet encoders**, **flexible component ensemble**, and **intermittent demand handling**.
